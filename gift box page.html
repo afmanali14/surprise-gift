@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Friendship Gifts</title>
+<style>
+body{
+    margin:0;
+    font-family:'Poppins',sans-serif;
+    background: linear-gradient(135deg,#b8f1cc,#b3e5ff);
+    min-height:100vh;
+    overflow-x:hidden;
+}
+
+/* Gift area */
+#gifts{
+    position:relative;
+    width:100%;
+    height:100vh;
+}
+
+.gift{
+    position:absolute;
+    font-size:48px;
+    cursor:pointer;
+    animation:pulse 1.8s infinite;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.15);}
+    100%{transform:scale(1);}
+}
+
+/* Display overlay */
+#display{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,0.6);
+    backdrop-filter: blur(6px);
+    z-index:5;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    padding:20px;
+}
+
+#display img{
+    max-width:80%;
+    max-height:55vh;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+}
+
+#line{
+    margin-top:20px;
+    text-align:center;
+    font-size:16px;
+    background:rgba(255,255,255,0.85);
+    padding:15px 20px;
+    border-radius:20px;
+}
+
+#returnBtn{
+    position:fixed;
+    bottom:20px;
+    left:20px;
+    padding:12px 18px;
+    border:none;
+    border-radius:25px;
+    background:#4fb6ff;
+    color:white;
+    font-size:14px;
+    cursor:pointer;
+    z-index:6;
+}
+
+/* Admin panel */
+#adminBtn{
+    position:fixed;
+    top:15px;
+    right:15px;
+    background:#4caf50;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    z-index:10;
+}
+
+#adminPanel{
+    position:fixed;
+    top:0;
+    right:-320px;
+    width:320px;
+    height:100%;
+    background:#ffffffee;
+    padding:15px;
+    overflow-y:auto;
+    transition:0.4s;
+    z-index:9;
+}
+
+#adminPanel.open{right:0;}
+
+#adminPanel h3{text-align:center;}
+
+#adminPanel input{
+    width:100%;
+    margin-bottom:8px;
+    padding:6px;
+}
+
+.admin-actions{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+.admin-actions button{
+    flex:1;
+    padding:8px;
+    border:none;
+    border-radius:15px;
+    cursor:pointer;
+}
+
+.saveBtn{background:#4caf50;color:white;}
+.closeBtn{background:#f44336;color:white;}
+</style>
+</head>
+<body>
+
+<button id="adminBtn">Admin</button>
+
+<div id="gifts"></div>
+
+<div id="display">
+    <img id="displayImg" src="" />
+    <div id="line"></div>
+    <button id="returnBtn">Return to unveil other gifts</button>
+</div>
+
+<div id="adminPanel">
+    <h3>Admin Panel</h3>
+    <p>Paste image URLs for each gift</p>
+    <div id="inputs"></div>
+    <div class="admin-actions">
+        <button class="saveBtn">Save</button>
+        <button class="closeBtn">Close</button>
+    </div>
+</div>
+
+<script>
+const lines=[
+"Ajj tera yaadometer 98% te rukeya hoya... explain k eve kyu?? 😳🎀",
+"Aaaaaluuu is missing someone veryyyyyy much..... guess who? 🤭💛",
+"Dil kehnda: 'Go hug your Golgappa right now' , so sending you a warm virtual hug at 150km/h 🤗💖",
+"Warning: Aaalu's happiness increased when you tapped this 😄💚",
+"Your friend is 110% pagal about our friendship 🤪💚",
+"Dil di vibe keh rahi: You matter..... oh v bohooooot shaaara 🌿💛",
+"Iss saal ne ik cheez sikhayi- You're really really special to me 🩵✨",
+"Your smile is the real gift here. Always keep it 😊🎀",
+"I hope this surprise made your day a little better 🌸💖",
+"The world is softer and brighter with you in it ✨💙",
+"Thank you for being such a sweet, grounded, positive person 🌿🤍",
+"You're strong, kind, caring.... and that's rare, stay like that 🌸💛",
+"A little surprise...... for a person who truly deserves it 🎁💖",
+"You are someone who deserves all the lovely things in life ✨🤗",
+"And here's the last one... specially added because tu meri mostttt important friend hain 💛🎀"
+];
+
+let images = JSON.parse(localStorage.getItem('giftImages')) || Array(15).fill("");
+let activeGifts = Array(15).fill(true);
+
+const giftsDiv=document.getElementById('gifts');
+
+function randomPos(){
+    return {
+        top: Math.random()*80 + 5,
+        left: Math.random()*80 + 5
+    };
+}
+
+function renderGifts(){
+    giftsDiv.innerHTML="";
+    lines.forEach((_,i)=>{
+        if(activeGifts[i]){
+            const d=document.createElement('div');
+            d.className='gift';
+            d.textContent='🎁';
+            const pos=randomPos();
+            d.style.top=pos.top+'%';
+            d.style.left=pos.left+'%';
+            d.onclick=()=>openGift(i);
+            giftsDiv.appendChild(d);
+        }
+    });
+}
+
+function openGift(i){
+    document.getElementById('display').style.display='flex';
+    document.getElementById('line').textContent=lines[i];
+    document.getElementById('displayImg').src=images[i]||'';
+    activeGifts[i]=false;
+    renderGifts();
+}
+
+renderGifts();
+
+// Return button
+document.getElementById('returnBtn').onclick=()=>{
+    document.getElementById('display').style.display='none';
+};
+
+// Admin panel logic
+const adminBtn=document.getElementById('adminBtn');
+const adminPanel=document.getElementById('adminPanel');
+
+adminBtn.onclick=()=>{
+    const pass=prompt('Enter admin password');
+    if(pass==='bestieAccess123'){
+        adminPanel.classList.add('open');
+    }
+};
+
+const inputs=document.getElementById('inputs');
+inputs.innerHTML='';
+for(let i=0;i<15;i++){
+    const inp=document.createElement('input');
+    inp.placeholder=`Image URL for Gift ${i+1}`;
+    inp.value=images[i];
+    inputs.appendChild(inp);
+}
+
+// Save images
+document.querySelector('.saveBtn').onclick=()=>{
+    const vals=[...inputs.children].map(i=>i.value);
+    images=vals;
+    localStorage.setItem('giftImages',JSON.stringify(images));
+    alert('Changes saved successfully 💾');
+};
+
+// Close panel
+document.querySelector('.closeBtn').onclick=()=>{
+    adminPanel.classList.remove('open');
+};
+</script>
+
+</body>
+</html>
